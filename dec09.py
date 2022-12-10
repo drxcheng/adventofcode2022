@@ -2019,201 +2019,75 @@ D 10
 L 25
 U 20'''
 
-# def move_up(head_position, tail_position):
-#     head_position[1] += 1
+def move_head(knot_positions, new_x, new_y):
+    if knot_positions[0][0] == new_x and knot_positions[0][1] == new_y:
+        return knot_positions
 
-#     if tail_position[1] == head_position[1] - 2:
-#         tail_position[0] = head_position[0]
-#         tail_position[1] += 1
-#     elif tail_position[1] == head_position[1] - 1 or tail_position[1] == head_position[1]:
-#         pass
-#     else:
-#         raise
+    sub_knot_positions = knot_positions[1:]
+    if len(sub_knot_positions) > 0:
+        next_knot_new_x = knot_positions[1][0]
+        next_knot_new_y = knot_positions[1][1]
 
+        x_moved = False
+        y_moved = False
+        if new_x > next_knot_new_x + 1:
+            next_knot_new_x = new_x - 1
+            x_moved = True
+        elif new_x < next_knot_new_x - 1:
+            next_knot_new_x = new_x + 1
+            x_moved = True
 
-#     return head_position, tail_position
+        if new_y > next_knot_new_y + 1:
+            next_knot_new_y = new_y - 1
+            y_moved = True
+        elif new_y < next_knot_new_y - 1:
+            next_knot_new_y = new_y + 1
+            y_moved = True
 
-# def move_right(head_position, tail_position):
-#     head_position[0] += 1
+        if x_moved:
+            if new_y > knot_positions[1][1]:
+                next_knot_new_y = knot_positions[1][1] + 1
+            elif new_y < knot_positions[1][1]:
+                next_knot_new_y = knot_positions[1][1] - 1
 
-#     if tail_position[0] == head_position[0] - 2:
-#         tail_position[0] += 1
-#         tail_position[1] = head_position[1]
-#     elif tail_position[0] == head_position[0] - 1 or tail_position[0] == head_position[0]:
-#         pass
-#     else:
-#         raise
+        if y_moved:
+            if new_x > knot_positions[1][0]:
+                next_knot_new_x = knot_positions[1][0] + 1
+            elif new_x < knot_positions[1][0]:
+                next_knot_new_x = knot_positions[1][0] - 1
 
-#     return head_position, tail_position
+        sub_knot_positions = move_head(sub_knot_positions, next_knot_new_x, next_knot_new_y)
 
-# def move_down(head_position, tail_position):
-#     head_position[1] -= 1
+    knot_positions[0][0] = new_x
+    knot_positions[0][1] = new_y
 
-#     if tail_position[1] == head_position[1] + 2:
-#         tail_position[0] = head_position[0]
-#         tail_position[1] -= 1
-#     elif tail_position[1] == head_position[1] or tail_position[1] == head_position[1] + 1:
-#         pass
-#     else:
-#         raise
-
-#     return head_position, tail_position
-
-# def move_left(head_position, tail_position):
-#     head_position[0] -= 1
-
-#     if tail_position[0] == head_position[0] + 2:
-#         tail_position[0] -= 1
-#         tail_position[1] = head_position[1]
-#     elif tail_position[0] == head_position[0] or tail_position[0] == head_position[0] + 1:
-#         pass
-#     else:
-#         raise
-
-#     return head_position, tail_position
-
-
-def move_up(knot_positions, new_x=None):
-    # print('up: ', end=' ')
-    # print(knot_positions)
-
-    knot_positions[0][1] += 1
-    # print('up - new: ', end=' ')
-    # print(knot_positions)
-
-    if len(knot_positions) == 1:
-        pass
-    elif knot_positions[1][1] == knot_positions[0][1] - 2:
-        knot_positions[1][0] = knot_positions[0][0]
-        # if secondary:
-        #     knot_positions[1][0] = knot_positions[0][0]
-        # else:
-        # if knot_positions[1][0] < knot_positions[0][0]:
-        #     knot_positions = [knot_positions[0]] + move_right(knot_positions[1:])
-        # elif knot_positions[1][0] > knot_positions[0][0]:
-        #     knot_positions = [knot_positions[0]] + move_left(knot_positions[1:])
-        knot_positions = [knot_positions[0]] + move_up(knot_positions[1:], knot_positions[0][0])
-    elif knot_positions[1][1] == knot_positions[0][1] - 1 or knot_positions[1][1] == knot_positions[0][1]:
-        pass
-    else:
-        raise
-
-    if new_x is not None and len(knot_positions) > 1:
-        if knot_positions[0][0] < new_x:
-            knot_positions = [knot_positions[0]] + move_right(knot_positions[1:])
-        elif knot_positions[0][0] > new_x:
-            knot_positions = [knot_positions[0]] + move_left(knot_positions[1:])
-
-    return knot_positions
-
-def move_right(knot_positions, new_y=None):
-    # print('right: ', end=' ')
-    # print(knot_positions)
-
-    knot_positions[0][0] += 1
-    # if new_y is not None:
-    #     knot_positions[0][1] = new_y
-    # print('right - new: ', end=' ')
-    # print(knot_positions)
-
-    if len(knot_positions) == 1:
-        pass
-    elif knot_positions[1][0] == knot_positions[0][0] - 2:
-        knot_positions[1][1] = knot_positions[0][1]
-        # if secondary:
-        # else:
-        # if knot_positions[1][1] < knot_positions[0][1]:
-        #     knot_positions = [knot_positions[0]] + move_up(knot_positions[1:])
-        # elif knot_positions[1][1] > knot_positions[0][1]:
-        #     knot_positions = [knot_positions[0]] + move_down(knot_positions[1:])
-        knot_positions = [knot_positions[0]] + move_right(knot_positions[1:], knot_positions[0][1])
-    elif knot_positions[1][0] == knot_positions[0][0] - 1 or knot_positions[1][0] == knot_positions[0][0]:
-        pass
-    else:
-        raise
-
-    if new_y is not None and len(knot_positions) > 1:
-        if knot_positions[0][1] < new_y:
-            knot_positions = [knot_positions[0]] + move_up(knot_positions[1:])
-        elif knot_positions[0][1] > new_y:
-            knot_positions = [knot_positions[0]] + move_down(knot_positions[1:])
-
-    return knot_positions
-
-def move_down(knot_positions, secondary=False):
-    knot_positions[0][1] -= 1
-
-    if len(knot_positions) == 1:
-        pass
-    elif knot_positions[1][1] == knot_positions[0][1] + 2:
-        knot_positions = [knot_positions[0]] + move_down(knot_positions[1:])
-        if secondary:
-            knot_positions[1][0] = knot_positions[0][0]
-        else:
-            if knot_positions[1][0] < knot_positions[0][0]:
-                knot_positions = [knot_positions[0]] + move_right(knot_positions[1:], True)
-            elif knot_positions[1][0] > knot_positions[0][0]:
-                knot_positions = [knot_positions[0]] + move_left(knot_positions[1:], True)
-    elif knot_positions[1][1] == knot_positions[0][1] or knot_positions[1][1] == knot_positions[0][1] + 1:
-        pass
-    else:
-        raise
-
-    return knot_positions
-
-def move_left(knot_positions, secondary=False):
-    knot_positions[0][0] -= 1
-
-    if len(knot_positions) == 1:
-        pass
-    elif knot_positions[1][0] == knot_positions[0][0] + 2:
-        knot_positions = [knot_positions[0]] + move_left(knot_positions[1:])
-        if secondary:
-            knot_positions[1][1] = knot_positions[0][1]
-        else:
-            if knot_positions[1][1] < knot_positions[0][1]:
-                knot_positions = [knot_positions[0]] + move_up(knot_positions[1:], True)
-            elif knot_positions[1][1] > knot_positions[0][1]:
-                knot_positions = [knot_positions[0]] + move_down(knot_positions[1:], True)
-    elif knot_positions[1][0] == knot_positions[0][0] or knot_positions[1][0] == knot_positions[0][0] + 1:
-        pass
-    else:
-        raise
-
-    return knot_positions
+    return [knot_positions[0]] + sub_knot_positions
 
 def dec09(input, number_of_knots):
     knot_positions = [[0, 0] for _ in range(number_of_knots)]
     all_tail_positions = [[0, 0]]
 
     for line in input.split('\n'):
-        print(line)
         commands = line.split(' ')
         iteration = int(commands[1])
         if commands[0] == 'U':
             for _ in range(iteration):
-                knot_positions = move_up(knot_positions)
-                print(knot_positions)
+                knot_positions = move_head(knot_positions, knot_positions[0][0], knot_positions[0][1] + 1)
                 all_tail_positions.append(copy(knot_positions[number_of_knots - 1]))
         elif commands[0] == 'R':
             for _ in range(iteration):
-                knot_positions = move_right(knot_positions)
-                print(knot_positions)
+                knot_positions = move_head(knot_positions, knot_positions[0][0] + 1, knot_positions[0][1])
                 all_tail_positions.append(copy(knot_positions[number_of_knots - 1]))
         elif commands[0] == 'D':
             for _ in range(iteration):
-                knot_positions = move_down(knot_positions)
-                print(knot_positions)
+                knot_positions = move_head(knot_positions, knot_positions[0][0], knot_positions[0][1] - 1)
                 all_tail_positions.append(copy(knot_positions[number_of_knots - 1]))
         elif commands[0] == 'L':
             for _ in range(iteration):
-                knot_positions = move_left(knot_positions)
-                print(knot_positions)
+                knot_positions = move_head(knot_positions, knot_positions[0][0] - 1, knot_positions[0][1])
                 all_tail_positions.append(copy(knot_positions[number_of_knots - 1]))
         else:
             raise
-        print('-', end=' ')
-        print(knot_positions)
 
     unique_tail_positions = []
     for position in all_tail_positions:
@@ -2223,48 +2097,7 @@ def dec09(input, number_of_knots):
     return len(unique_tail_positions)
 
 def main():
-    # print(f'Part One: {dec09(INPUT, 2)}')
-    print(f'Part Two: {dec09(INPUT_SAMPLE_PART_ONE, 6)}')
+    print(f'Part One: {dec09(INPUT, 2)}')
+    print(f'Part Two: {dec09(INPUT, 10)}')
 
 main()
-
-# def part_one():
-#     head_position = [0, 0]
-#     tail_position = [0, 0]
-#     all_tail_positions = [tail_position]
-
-#     for line in INPUT.split('\n'):
-#         # print(line)
-#         commands = line.split(' ')
-#         iteration = int(commands[1])
-#         if commands[0] == 'U':
-#             for _ in range(iteration):
-#                 # print((head_position, tail_position), end=' to ')
-#                 head_position, tail_position = move_up(head_position, tail_position)
-#                 # print((head_position, tail_position))
-#                 all_tail_positions.append(copy(tail_position))
-#         elif commands[0] == 'R':
-#             for _ in range(iteration):
-#                 # print((head_position, tail_position), end=' to ')
-#                 head_position, tail_position = move_right(head_position, tail_position)
-#                 # print((head_position, tail_position))
-#                 all_tail_positions.append(copy(tail_position))
-#         elif commands[0] == 'D':
-#             for _ in range(iteration):
-#                 # print((head_position, tail_position), end=' to ')
-#                 head_position, tail_position = move_down(head_position, tail_position)
-#                 # print((head_position, tail_position))
-#                 all_tail_positions.append(copy(tail_position))
-#         elif commands[0] == 'L':
-#             for _ in range(iteration):
-#                 # print((head_position, tail_position), end=' to ')
-#                 head_position, tail_position = move_left(head_position, tail_position)
-#                 # print((head_position, tail_position))
-#                 all_tail_positions.append(copy(tail_position))
-#         else:
-#             raise
-
-#     unique_tail_positions = []
-#     for position in all_tail_positions:
-#         if position not in unique_tail_positions:
-#             unique_tail_positions.append(position)
