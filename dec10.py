@@ -288,7 +288,7 @@ noop'''
 def main():
     x = 1
     cycle_value = [x]
-    for line in INPUT_SAMPLE.split('\n'):
+    for line in INPUT.split('\n'):
         commands = line.split(' ')
         if commands[0] == 'noop':
             cycle_value.append(x)
@@ -299,27 +299,26 @@ def main():
         else:
             raise
 
-    signal = 0
+    signal_strength = 0
     for cycle in range(20, 221, 40):
-        # print(f'cycle={cycle}, x={cycle_value[cycle]}, signal={cycle * cycle_value[cycle]}')
-        signal += cycle * cycle_value[cycle - 1]
+        signal_strength += cycle * cycle_value[cycle - 1]
 
-    print(f'Part One: {signal}')
+    print(f'Part One: {signal_strength}')
 
     lit_dark = []
     for i in range(0, len(cycle_value)):
-        sprite_positions = [i % 40, i % 40 + 1, i % 40 + 2]
-        if cycle_value[i] in sprite_positions:
+        sprite_positions = [cycle_value[i] - 1, cycle_value[i], cycle_value[i] + 1]
+        scan_position = (i) % 40
+        if scan_position in sprite_positions:
             lit_dark.append('#')
         else:
             lit_dark.append('.')
 
     print('Part Two:')
-    # print(lit_dark[:40])
-    for i in range(0, len(lit_dark)):
-        if (i + 2) % 40 == 0:
-            print(lit_dark[i])
+    for i in range(1, len(lit_dark)):
+        if (i) % 40 == 0:
+            print(lit_dark[i - 1])
         else:
-            print(lit_dark[i], end='')
+            print(lit_dark[i - 1], end='')
 
 main()
