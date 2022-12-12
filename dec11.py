@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 INPUT = '''Monkey 0:
   Starting items: 99, 63, 76, 93, 54, 73
   Operation: new = old * 11
@@ -82,39 +84,24 @@ Monkey 3:
     If true: throw to monkey 0
     If false: throw to monkey 1'''
 
-def main():
-    items_by_monkey = {}
-    operation_by_monkey = {}
-    test_divisible_by_monkey = {}
-    test_true_result_by_monkey = {}
-    test_false_result_by_monkey = {}
+
+def dec11(
+    _items_by_monkey,
+    operation_by_monkey,
+    test_divisible_by_monkey,
+    test_true_result_by_monkey,
+    test_false_result_by_monkey,
+    rounds,
+    worry_level_change,
+):
+    items_by_monkey = deepcopy(_items_by_monkey)
     inspected_count_by_monkey = {}
 
-    monkey_index = None
-    for line in INPUT_SAMPLE.split('\n'):
-        # print(line)
-        if line.startswith('Monkey '):
-            monkey_index = int(line[7:8])
-            inspected_count_by_monkey[monkey_index] = 0
-        elif line.startswith('  Starting items: '):
-            items = list(map(lambda x: int(x), line[len('  Starting items: '):].split(', ')))
-            items_by_monkey[monkey_index] = items
-        elif line.startswith('  Operation: new = old '):
-            command = line[len('  Operation: new = old '):]
-            operation_by_monkey[monkey_index] = command
-        elif line.startswith('  Test: divisible by '):
-            test_divisible_by_monkey[monkey_index] = int(line[len('  Test: divisible by '):])
-        elif line.startswith('    If true: throw to monkey '):
-            test_true_result_by_monkey[monkey_index] = int(line[len('    If true: throw to monkey '):])
-        elif line.startswith('    If false: throw to monkey '):
-            test_false_result_by_monkey[monkey_index] = int(line[len('    If false: throw to monkey '):])
-        else:
-            continue
-
-    for round in range(0, 20):
-        for index in range(0, monkey_index + 1):
-            # print(f'Monkey {index}')
+    for _ in range(0, rounds):
+        for index in range(0, len(items_by_monkey.keys())):
             while len(items_by_monkey[index]) > 0:
+                if index not in inspected_count_by_monkey:
+                    inspected_count_by_monkey[index] = 0
                 inspected_count_by_monkey[index] += 1
                 item = items_by_monkey[index].pop()
                 operation = operation_by_monkey[index]
@@ -124,23 +111,65 @@ def main():
                     worry_level = item * (item if operation[2:] == 'old' else int(operation[2:]))
                 else:
                     raise
-                worry_level = int(worry_level/3)
-                # print(f'  item={item}, worry_level={worry_level}, divisible={test_divisible_by_monkey[index]}')
+                worry_level = worry_level_change(worry_level)
                 if worry_level % test_divisible_by_monkey[index] == 0:
-                    # print(f'    test true: {test_true_result_by_monkey[index]}')
                     items_by_monkey[test_true_result_by_monkey[index]].append(worry_level)
                 else:
-                    # print(f'    test false: {test_false_result_by_monkey[index]}')
                     items_by_monkey[test_false_result_by_monkey[index]].append(worry_level)
 
-            # print(f'after monkey {index}, {items_by_monkey}')
-        # print(f'after round {round + 1}, {items_by_monkey}')
-
-    # print(inspected_count_by_monkey)
-
     inspected_count_by_monkey_sorted = sorted(list(inspected_count_by_monkey.values()), reverse=True)
-    # print(inspected_count_by_monkey_sorted)
 
-    print(f'Part One: {inspected_count_by_monkey_sorted[0] * inspected_count_by_monkey_sorted[1]}')
+    return inspected_count_by_monkey_sorted[0] * inspected_count_by_monkey_sorted[1]
+
+
+def main():
+    items_by_monkey = {}
+    operation_by_monkey = {}
+    ultimate_mod = 1
+    test_divisible_by_monkey = {}
+    test_true_result_by_monkey = {}
+    test_false_result_by_monkey = {}
+
+    monkey_index = None
+    for line in INPUT.split('\n'):
+        if line.startswith('Monkey '):
+            monkey_index = int(line[7:8])
+        elif line.startswith('  Starting items: '):
+            items = list(map(lambda x: int(x), line[len('  Starting items: '):].split(', ')))
+            items_by_monkey[monkey_index] = items
+        elif line.startswith('  Operation: new = old '):
+            command = line[len('  Operation: new = old '):]
+            operation_by_monkey[monkey_index] = command
+        elif line.startswith('  Test: divisible by '):
+            test_divisible_by_monkey[monkey_index] = int(line[len('  Test: divisible by '):])
+            ultimate_mod *= test_divisible_by_monkey[monkey_index]
+        elif line.startswith('    If true: throw to monkey '):
+            test_true_result_by_monkey[monkey_index] = int(line[len('    If true: throw to monkey '):])
+        elif line.startswith('    If false: throw to monkey '):
+            test_false_result_by_monkey[monkey_index] = int(line[len('    If false: throw to monkey '):])
+        else:
+            continue
+
+    result_part_one = dec11(
+        items_by_monkey,
+        operation_by_monkey,
+        test_divisible_by_monkey,
+        test_true_result_by_monkey,
+        test_false_result_by_monkey,
+        20,
+        lambda x: int(x/3),
+    )
+    print(f'Part One: {result_part_one}')
+
+    result_part_two = dec11(
+        items_by_monkey,
+        operation_by_monkey,
+        test_divisible_by_monkey,
+        test_true_result_by_monkey,
+        test_false_result_by_monkey,
+        10000,
+        lambda x: x % ultimate_mod,
+    )
+    print(f'Part Two: {result_part_two}')
 
 main()
