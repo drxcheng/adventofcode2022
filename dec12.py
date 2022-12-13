@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 INPUT = '''abcccaaaaacccacccccccccccccccccccccccccccccccccccccccccccccccccccccccaaaaaacaccccccaaacccccccccccccccccccccccccccccccccccaaaaaaaaccccccccccccccccccccccccccccccccaaaaaa
 abcccaaaaacccaaacaaacccccccccccccccccaaccccccacccaacccccccccccaacccccaaaaaaaaaaaccaaaaaaccccccccccccccccccccccccccccccccccaaaaaccccccccccccccccccccccccccccccccccaaaaaa
 abccccaaaaaccaaaaaaaccccccccccccccaaaacccccccaacaaacccccccccaaaaaacccaaaaaaaaaaaccaaaaaacccccccccccccccccccccccccccccccccccaaaaaccccccccccccccaaacccccccccccccccccaaaaa
@@ -73,59 +71,61 @@ def can_down(height_map, current_position, target_position):
 def get_index_from_position(row, column, width):
     return row * width + column
 
-
-def process(height_map, step_list, destinations, can_move):
+def dijkstra(height_map, start_index, end_index_candidates, can_move):
+    step_list = []
+    positions_to_process = []
     width = len(height_map[0])
+    for i in range(len(height_map) * width):
+        step_list.append(None)
+        positions_to_process.append(i)
+    step_list[start_index] = 0
 
     def update_step_list(current_index, target_index):
         target_step = step_list[target_index]
         if target_step is None or target_step > step_list[current_index] + 1:
             step_list[target_index] = step_list[current_index] + 1
 
-    while True:
-        for index in range(0, len(step_list)):
-            if step_list[index] is None:
-                continue
+    while len(positions_to_process) > 0:
+        current_index = None
+        min_steps = None
+        for index in positions_to_process:
+            if step_list[index] is not None and (min_steps is None or step_list[index] < min_steps):
+                min_steps = step_list[index]
+                current_index = index
 
-            row = int(index / width)
-            column = index % width
+        if current_index in end_index_candidates:
+            return step_list[current_index]
 
-            reached_destinations = []
-            if row > 0 and can_move(height_map, [row, column], [row - 1, column]):
-                # up
-                target_index = get_index_from_position(row - 1, column, width)
-                update_step_list(index, target_index)
-                if target_index in destinations:
-                    reached_destinations.append(target_index)
+        positions_to_process.remove(current_index)
 
-            if column < width - 1 and can_move(height_map, [row, column], [row, column + 1]):
-                # right
-                target_index = get_index_from_position(row, column + 1, width)
-                update_step_list(index, target_index)
-                if target_index in destinations:
-                    reached_destinations.append(target_index)
+        row = int(current_index / width)
+        column = current_index % width
+        if row > 0 and can_move(height_map, [row, column], [row - 1, column]):
+            # up
+            target_index = get_index_from_position(row - 1, column, width)
+            if target_index in positions_to_process:
+                update_step_list(current_index, target_index)
 
-            if row < len(height_map) - 1 and can_move(height_map, [row, column], [row + 1, column]):
-                # down
-                target_index = get_index_from_position(row + 1, column, width)
-                update_step_list(index, target_index)
-                if target_index in destinations:
-                    reached_destinations.append(target_index)
+        if column < width - 1 and can_move(height_map, [row, column], [row, column + 1]):
+            # right
+            target_index = get_index_from_position(row, column + 1, width)
+            if target_index in positions_to_process:
+                update_step_list(current_index, target_index)
 
-            if column > 0 and can_move(height_map, [row, column], [row, column - 1]):
-                # left
-                target_index = get_index_from_position(row, column - 1, width)
-                update_step_list(index, target_index)
-                if target_index in destinations:
-                    reached_destinations.append(target_index)
+        if row < len(height_map) - 1 and can_move(height_map, [row, column], [row + 1, column]):
+            # down
+            target_index = get_index_from_position(row + 1, column, width)
+            if target_index in positions_to_process:
+                update_step_list(current_index, target_index)
 
-            if reached_destinations:
-                return min([step_list[destination] for destination in reached_destinations])
-
+        if column > 0 and can_move(height_map, [row, column], [row, column - 1]):
+            # left
+            target_index = get_index_from_position(row, column - 1, width)
+            if target_index in positions_to_process:
+                update_step_list(current_index, target_index)
 
 def main():
     height_map = []
-    initial_step_list = []
     start_index = None
     end_index = None
     trail_start_index_candidates = []
@@ -135,8 +135,6 @@ def main():
     for line in INPUT.split('\n'):
         width = len(line)
         height_map.append([*line])
-        for _ in range(len(line)):
-            initial_step_list.append(None)
 
         if 'a' in line:
             trail_start_index_candidates.append(get_index_from_position(row, line.index('a'), width))
@@ -150,37 +148,10 @@ def main():
 
         row += 1
 
-    step_list = deepcopy(initial_step_list)
-    step_list[start_index] = 0
+    shortest_steps = dijkstra(height_map, start_index, [end_index], can_up)
+    print(f'Part One: {shortest_steps}')
 
-    result_part_one = process(
-        height_map,
-        step_list,
-        [end_index],
-        can_up,
-    )
-    print(f'Part One: {result_part_one}')
-
-    highest_start = 0
-    for row, line in enumerate(height_map):
-        for column, char in enumerate([*line]):
-            if char == 'a':
-                step = step_list[get_index_from_position(row, column, width)]
-                print(step)
-                if step > highest_start:
-                    highest_start = step
-    # print(highest_start)
-
-    print(f'Part Two: {result_part_one - highest_start + 1}')
-
-    # step_list = deepcopy(initial_step_list)
-    # step_list[end_index] = 0
-
-    # print(f'''Part Two: {process(
-    #     height_map,
-    #     step_list,
-    #     trail_start_index_candidates,
-    #     can_down,
-    # )}''')
+    shortest_steps = dijkstra(height_map, end_index, trail_start_index_candidates, can_down)
+    print(f'Part Two: {shortest_steps}')
 
 main()
