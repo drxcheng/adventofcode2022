@@ -88,31 +88,33 @@ with open(f"dec16{'-sample' if SAMPLE else ''}.txt") as file:
                 new_sequence,
             )
 
+    next_step(
+        all_valves[0],
+        closed_valves,
+        0,
+        0,
+        30,
+        [all_valves[0]],
+    )
+
     if all_valves[0] in closed_valves:
         closed_valves.remove(all_valves[0])
         next_step(
             all_valves[0],
             closed_valves,
             rate_by_valve[all_valves[0]],
-            rate_by_valve[all_valves[0]],
+            0,
             29,
             [all_valves[0] + 'o'],
-        )
-    else:
-        next_step(
-            all_valves[0],
-            closed_valves,
-            0,
-            0,
-            30,
-            [all_valves[0]],
         )
 
     max_pressure = 0
     for sequence, val in all_pressure_released.items():
         if val > max_pressure:
             max_pressure = val
-        # print(f'{sequence}: {val}')
+            print(f'{sequence}: {val}')
+
+    # QE,XH,NS,BY,CJ,KI,TN,EI,CQ: 2110
 
     print(f'Part One: {max_pressure}')
     # print(f'Part Two: ')

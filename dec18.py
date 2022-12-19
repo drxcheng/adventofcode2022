@@ -1,4 +1,6 @@
-SAMPLE = False
+import functools
+
+SAMPLE = True
 
 with open(f"dec18{'-sample' if SAMPLE else ''}.txt") as file:
     cubes = []
@@ -86,5 +88,20 @@ with open(f"dec18{'-sample' if SAMPLE else ''}.txt") as file:
             break
 
     print(len(airs))
+
+    def sort_airs(x, y):
+        if x[0] == y[0]:
+            if x[1] == y[1]:
+                if x[2] == y[2]:
+                    return 0
+                return -1 if x[2] < y[2] else 1
+            return -1 if x[1] < y[1] else 1
+        return -1 if x[0] < y[0] else 1
+
+    sorted(airs, key=functools.cmp_to_key(sort_airs))
+
+    for air in airs:
+        print(air)
+
 
     print(f'Part Two: {part_one_result - getTotalSurfaces(airs)}')
